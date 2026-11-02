@@ -1,4 +1,5 @@
 import { Ionicons } from "@expo/vector-icons";
+import { Link } from "expo-router";
 import * as Haptics from "expo-haptics";
 import { StatusBar } from "expo-status-bar";
 import { useEffect, useMemo, useState, type ComponentProps } from "react";
@@ -18,6 +19,7 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { VpnFab } from "../../components/VpnFab";
 import {
   addSubscription,
   deleteSubscription,
@@ -582,6 +584,7 @@ export default function HomeScreen() {
           </View>
         </View>
       </Modal>
+    <VpnFab />
     </SafeAreaView>
   );
 }
