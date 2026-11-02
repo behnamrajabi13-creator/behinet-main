@@ -25,20 +25,20 @@ jobs:
         run: |
           sed -i 's/const watchedDirectories = JSON.parse(watchedDirectoriesSerialized);/const watchedDirectories = []; \/\/ PATCHED/' node_modules/expo-modules-autolinking/build/commands/mirrorKotlinInlineModulesCommand.js || true
           sed -i 's/package="[^"]*"//g' node_modules/@react-native-masked-view/masked-view/android/src/main/AndroidManifest.xml || true
-      - name: Prebuild
-        run: npx expo prebuild --platform android --clean
-      - name: Fix gradle.properties
+      - name: Fix gradle.properties BEFORE prebuild
         run: |
-          cd android
-          rm -f gradle.properties
-          cat > gradle.properties << 'ENDOFFILE'
+          mkdir -p android
+          cat > android/gradle.properties << 'ENDOFFILE'
           org.gradle.jvmargs=-Xmx4g -XX:MaxMetaspaceSize=1g
           org.gradle.daemon=false
           org.gradle.parallel=false
           android.useAndroidX=true
           android.enableJetifier=true
           ENDOFFILE
-          sed -i 's/minifyEnabled true/minifyEnabled false/g' app/build.gradle || true
+      - name: Prebuild
+        run: npx expo prebuild --platform android --clean
+      - name: Disable R8
+        run: sed -i 's/minifyEnabled true/minifyEnabled false/g' android/app/build.gradle || true
       - name: Build APK
         run: |
           cd android
