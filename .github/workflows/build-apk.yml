@@ -27,12 +27,21 @@ jobs:
           sed -i 's/package="[^"]*"//g' node_modules/@react-native-masked-view/masked-view/android/src/main/AndroidManifest.xml || true
       - name: Prebuild
         run: npx expo prebuild --platform android --clean
-      - name: Disable R8
-        run: sed -i 's/minifyEnabled true/minifyEnabled false/g' android/app/build.gradle || true
+      - name: Fix gradle.properties
+        run: |
+          cd android
+          rm -f gradle.properties
+          cat > gradle.properties << 'ENDOFFILE'
+          org.gradle.jvmargs=-Xmx4g -XX:MaxMetaspaceSize=1g
+          org.gradle.daemon=false
+          org.gradle.parallel=false
+          android.useAndroidX=true
+          android.enableJetifier=true
+          ENDOFFILE
+          sed -i 's/minifyEnabled true/minifyEnabled false/g' app/build.gradle || true
       - name: Build APK
         run: |
           cd android
-          echo "org.gradle.jvmargs=-Xmx4g -XX:MaxMetaspaceSize=1g" >> gradle.properties
           ./gradlew assembleRelease -PreactNativeArchitectures=arm64-v8a
       - name: Upload APK
         uses: actions/upload-artifact@v4
